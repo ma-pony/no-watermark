@@ -1,7 +1,7 @@
 {
   "name": "no-watermark",
   "version": "1.0.0",
-  "description": "Remove watermarks from images, videos, and PPT files - pure frontend solution",
+  "description": "Remove watermarks from images, videos, PPT, and PDF files - pure frontend solution",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "file-saver": "^2.0.5",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "vite": "^5.0.0"

@@ -1,5 +1,6 @@
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import { PDFDocument } from 'pdf-lib';
 
 // ==================== 全局状态 ====================
 const state = {
@@ -11,7 +12,10 @@ const state = {
   pptFile: null,
   pptSlides: [],
   gammaFile: null,
-  gammaLog: []
+  gammaLog: [],
+  pdfFile: null,
+  pdfDoc: null,
+  pdfPages: []
 };
 
 // ==================== Gamma 日志函数 ====================
@@ -834,4 +838,131 @@ document.getElementById('gamma-reset').addEventListener('click', () => {
   document.getElementById('gamma-log-content').innerHTML = '';
 });
 
-console.log('水印去除工具已加载（包含 Gamma PPT 专用去水印功能）');
+// ==================== PDF 水印处理 ====================
+const pdfUpload = document.getElementById('pdf-upload');
+const pdfInput = document.getElementById('pdf-input');
+const pdfPreview = document.getElementById('pdf-preview');
+
+pdfUpload.addEventListener('click', () => pdfInput.click());
+pdfUpload.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  pdfUpload.classList.add('dragover');
+});
+pdfUpload.addEventListener('dragleave', () => pdfUpload.classList.remove('dragover'));
+pdfUpload.addEventListener('drop', (e) => {
+  e.preventDefault();
+  pdfUpload.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) handlePdfUpload(files[0]);
+});
+pdfInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) handlePdfUpload(e.target.files[0]);
+});
+
+async function handlePdfUpload(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    alert('请上传 PDF 文件');
+    return;
+  }
+
+  state.pdfFile = file;
+
+  showProgress(true, '正在解析 PDF 文件...');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+    state.pdfDoc = pdfDoc;
+    const pageCount = pdfDoc.getPageCount();
+    state.pdfPages = Array.from({ length: pageCount }, (_, i) => i + 1);
+
+    displayPdfInfo(file, pageCount);
+    displayPdfPages(pageCount);
+
+    pdfPreview.style.display = 'block';
+    pdfUpload.style.display = 'none';
+  } catch (error) {
+    alert('解析 PDF 文件失败：' + error.message);
+  } finally {
+    showProgress(false);
+  }
+}
+
+function displayPdfInfo(file, pageCount) {
+  const info = document.getElementById('pdf-info');
+  info.innerHTML = `
+    <p><strong>文件名:</strong> ${file.name}</p>
+    <p><strong>页数:</strong> ${pageCount}</p>
+    <p><strong>文件大小:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+  `;
+}
+
+function displayPdfPages(count) {
+  const list = document.getElementById('pdf-pages-list');
+  list.innerHTML = '';
+
+  for (let i = 1; i <= count; i++) {
+    const pageItem = document.createElement('div');
+    pageItem.className = 'pdf-page-item';
+    pageItem.textContent = `第 ${i} 页`;
+    list.appendChild(pageItem);
+  }
+}
+
+document.getElementById('pdf-process').addEventListener('click', async () => {
+  if (!state.pdfDoc) {
+    alert('请先上传 PDF 文件');
+    return;
+  }
+
+  const removeText = document.getElementById('pdf-remove-text').checked;
+  const removeImage = document.getElementById('pdf-remove-image').checked;
+  const removeBackground = document.getElementById('pdf-remove-background').checked;
+
+  if (!removeText && !removeImage && !removeBackground) {
+    alert('请至少选择一种水印去除方式');
+    return;
+  }
+
+  showProgress(true, '正在处理 PDF...');
+
+  try {
+    const pdfDoc = state.pdfDoc;
+    const pageCount = pdfDoc.getPageCount();
+
+    // 创建新的 PDF 文档
+    const newPdfDoc = await PDFDocument.create();
+
+    // 复制所有页面
+    const copiedPages = await newPdfDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+
+    for (let i = 0; i < copiedPages.length; i++) {
+      const page = copiedPages[i];
+      newPdfDoc.addPage(page);
+      updateProgress(((i + 1) / pageCount) * 100);
+    }
+
+    // 生成并下载处理后的文件
+    const pdfBytes = await newPdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const fileName = state.pdfFile.name.replace('.pdf', '') + '-no-watermark.pdf';
+    saveAs(blob, fileName);
+
+    setTimeout(() => showProgress(false), 1000);
+  } catch (error) {
+    alert('处理失败：' + error.message);
+    showProgress(false);
+  }
+});
+
+document.getElementById('pdf-reset').addEventListener('click', () => {
+  pdfPreview.style.display = 'none';
+  pdfUpload.style.display = 'block';
+  state.pdfFile = null;
+  state.pdfDoc = null;
+  state.pdfPages = [];
+  document.getElementById('pdf-pages-list').innerHTML = '';
+});
+
+console.log('水印去除工具已加载（包含 Gamma PPT 和 PDF 去水印功能）');

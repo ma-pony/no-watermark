@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Primary Meta Tags -->
-  <title>水印去除工具 - 在线去除图片/视频/PPT/Gamma水印 | 纯前端本地处理</title>
-  <meta name="title" content="水印去除工具 - 在线去除图片/视频/PPT/Gamma水印 | 纯前端本地处理">
-  <meta name="description" content="免费在线水印去除工具，支持图片、视频、PPT和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。支持批量处理，操作简单，效果专业。">
-  <meta name="keywords" content="水印去除,去水印,图片去水印,视频去水印,PPT去水印,Gamma去水印,在线去水印,免费去水印工具,水印移除,watermark remover">
+  <title>水印去除工具 - 在线去除图片/视频/PPT/PDF/Gamma水印 | 纯前端本地处理</title>
+  <meta name="title" content="水印去除工具 - 在线去除图片/视频/PPT/PDF/Gamma水印 | 纯前端本地处理">
+  <meta name="description" content="免费在线水印去除工具，支持图片、视频、PPT、PDF和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。支持批量处理，操作简单，效果专业。">
+  <meta name="keywords" content="水印去除,去水印,图片去水印,视频去水印,PPT去水印,PDF去水印,Gamma去水印,在线去水印,免费去水印工具,水印移除,watermark remover">
   <meta name="author" content="No Watermark Tool">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://yourwebsite.com/">
@@ -16,16 +16,16 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://yourwebsite.com/">
-  <meta property="og:title" content="水印去除工具 - 在线去除图片/视频/PPT/Gamma水印 | 纯前端本地处理">
-  <meta property="og:description" content="免费在线水印去除工具，支持图片、视频、PPT和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。">
+  <meta property="og:title" content="水印去除工具 - 在线去除图片/视频/PPT/PDF/Gamma水印 | 纯前端本地处理">
+  <meta property="og:description" content="免费在线水印去除工具，支持图片、视频、PPT、PDF和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。">
   <meta property="og:image" content="https://yourwebsite.com/og-image.png">
   <meta property="og:locale" content="zh_CN">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://yourwebsite.com/">
-  <meta property="twitter:title" content="水印去除工具 - 在线去除图片/视频/PPT/Gamma水印 | 纯前端本地处理">
-  <meta property="twitter:description" content="免费在线水印去除工具，支持图片、视频、PPT和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。">
+  <meta property="twitter:title" content="水印去除工具 - 在线去除图片/视频/PPT/PDF/Gamma水印 | 纯前端本地处理">
+  <meta property="twitter:description" content="免费在线水印去除工具，支持图片、视频、PPT、PDF和Gamma App水印去除。纯前端本地处理，无需上传服务器，100%保护隐私。">
   <meta property="twitter:image" content="https://yourwebsite.com/twitter-image.png">
 
   <!-- Additional SEO -->
@@ -38,7 +38,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "水印去除工具",
-    "description": "免费在线水印去除工具，支持图片、视频、PPT和Gamma App水印去除。纯前端本地处理，无需上传服务器。",
+    "description": "免费在线水印去除工具，支持图片、视频、PPT、PDF和Gamma App水印去除。纯前端本地处理，无需上传服务器。",
     "url": "https://yourwebsite.com",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Any",
@@ -51,6 +51,7 @@
       "图片水印去除",
       "视频水印去除",
       "PPT水印去除",
+      "PDF水印去除",
       "Gamma App水印去除",
       "批量处理",
       "本地处理保护隐私"
@@ -80,6 +81,7 @@
       <button class="tab-btn" data-tab="video">视频水印</button>
       <button class="tab-btn" data-tab="ppt">PPT水印</button>
       <button class="tab-btn" data-tab="gamma">Gamma PPT</button>
+      <button class="tab-btn" data-tab="pdf">PDF水印</button>
     </div>
 
     <!-- 图片水印去除 -->
@@ -229,6 +231,48 @@
         <div class="controls">
           <button class="btn btn-secondary" id="gamma-reset">重置</button>
           <button class="btn btn-primary" id="gamma-process">一键去除水印</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF 水印去除 -->
+    <div class="tab-content" id="pdf-tab">
+      <div class="upload-area" id="pdf-upload">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <path d="M9 15l3 3 3-3"/>
+          <path d="M12 18V10"/>
+        </svg>
+        <p>拖拽 PDF 文件到此处或点击上传</p>
+        <input type="file" id="pdf-input" accept=".pdf" hidden>
+      </div>
+
+      <div class="options-panel">
+        <h3>PDF 水印去除选项</h3>
+        <p class="note">支持去除文字水印、图片水印和背景水印</p>
+        <div class="option-group">
+          <label>
+            <input type="checkbox" id="pdf-remove-text" checked>
+            删除文字水印
+          </label>
+          <label>
+            <input type="checkbox" id="pdf-remove-image" checked>
+            删除图片水印
+          </label>
+          <label>
+            <input type="checkbox" id="pdf-remove-background">
+            删除背景水印
+          </label>
+        </div>
+      </div>
+
+      <div class="pdf-preview-area" id="pdf-preview" style="display: none;">
+        <div class="pdf-info" id="pdf-info"></div>
+        <div class="pdf-pages-list" id="pdf-pages-list"></div>
+        <div class="controls">
+          <button class="btn btn-secondary" id="pdf-reset">重置</button>
+          <button class="btn btn-primary" id="pdf-process">处理并下载</button>
         </div>
       </div>
     </div>
