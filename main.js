@@ -9,8 +9,24 @@ const state = {
   videoFile: null,
   watermarkRegion: { x: 0, y: 0, width: 100, height: 50 },
   pptFile: null,
-  pptSlides: []
+  pptSlides: [],
+  gammaFile: null,
+  gammaLog: []
 };
+
+// ==================== Gamma 日志函数 ====================
+function addGammaLog(message, type = 'info') {
+  const timestamp = new Date().toLocaleTimeString();
+  state.gammaLog.push({ message, type, timestamp });
+  const logContent = document.getElementById('gamma-log-content');
+  if (logContent) {
+    const p = document.createElement('p');
+    p.className = type;
+    p.textContent = `[${timestamp}] ${message}`;
+    logContent.appendChild(p);
+    logContent.scrollTop = logContent.scrollHeight;
+  }
+}
 
 // ==================== 工具函数 ====================
 function showProgress(show, text = '处理中...') {
@@ -528,4 +544,294 @@ document.getElementById('ppt-reset').addEventListener('click', () => {
   document.getElementById('slides-list').innerHTML = '';
 });
 
-console.log('水印去除工具已加载');
+// ==================== Gamma PPT 水印处理 ====================
+const gammaUpload = document.getElementById('gamma-upload');
+const gammaInput = document.getElementById('gamma-input');
+const gammaPreview = document.getElementById('gamma-preview');
+
+gammaUpload.addEventListener('click', () => gammaInput.click());
+gammaUpload.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  gammaUpload.classList.add('dragover');
+});
+gammaUpload.addEventListener('dragleave', () => gammaUpload.classList.remove('dragover'));
+gammaUpload.addEventListener('drop', (e) => {
+  e.preventDefault();
+  gammaUpload.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) handleGammaUpload(files[0]);
+});
+gammaInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) handleGammaUpload(e.target.files[0]);
+});
+
+async function handleGammaUpload(file) {
+  const fileName = file.name.toLowerCase();
+  if (!fileName.endsWith('.pptx')) {
+    alert('请上传 .pptx 格式的文件');
+    return;
+  }
+
+  state.gammaFile = file;
+  state.gammaLog = [];
+
+  showProgress(true, '正在解析 Gamma PPT 文件...');
+
+  try {
+    const zip = new JSZip();
+    const zipContent = await zip.loadAsync(file);
+
+    // 检查是否包含 slideLayouts 文件夹（Gamma PPT 的特征）
+    const hasLayouts = Object.keys(zipContent.files).some(name =>
+      name.includes('ppt/slideLayouts/')
+    );
+
+    addGammaLog(`文件名: ${file.name}`);
+    addGammaLog(`文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+
+    const slideFiles = Object.keys(zipContent.files).filter(name =>
+      name.startsWith('ppt/slides/slide') && name.endsWith('.xml')
+    );
+    addGammaLog(`幻灯片数量: ${slideFiles.length}`);
+
+    const layoutFiles = Object.keys(zipContent.files).filter(name =>
+      name.startsWith('ppt/slideLayouts/slideLayout') && name.endsWith('.xml')
+    );
+    addGammaLog(`布局文件数量: ${layoutFiles.length}`);
+
+    displayGammaInfo(file, slideFiles.length, layoutFiles.length);
+
+    gammaPreview.style.display = 'block';
+    gammaUpload.style.display = 'none';
+
+    addGammaLog('文件解析完成，点击"一键去除水印"开始处理', 'info');
+  } catch (error) {
+    addGammaLog('解析失败：' + error.message, 'error');
+    alert('解析 PPT 文件失败：' + error.message);
+  } finally {
+    showProgress(false);
+  }
+}
+
+function displayGammaInfo(file, slideCount, layoutCount) {
+  const info = document.getElementById('gamma-info');
+  info.innerHTML = `
+    <p><strong>文件名:</strong> ${file.name}</p>
+    <p><strong>幻灯片数量:</strong> ${slideCount}</p>
+    <p><strong>布局文件数量:</strong> ${layoutCount}</p>
+    <p><strong>文件大小:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+  `;
+}
+
+/**
+ * 从幻灯片布局 XML 中移除 Gamma 水印
+ * 参考自 gamma_no_watermark.js 的 removeGammaFromLayout 函数
+ */
+function removeGammaFromLayout(xmlContent) {
+  const parser = new DOMParser();
+  const serializer = new XMLSerializer();
+
+  try {
+    const doc = parser.parseFromString(xmlContent, 'text/xml');
+
+    // 查找所有 pic 元素
+    const picElements = doc.getElementsByTagNameNS('*', 'pic');
+    let modified = false;
+
+    for (let i = picElements.length - 1; i >= 0; i--) {
+      const pic = picElements[i];
+
+      // 检查 nvPicPr > cNvPr
+      const nvPicPr = pic.getElementsByTagNameNS('*', 'nvPicPr')[0];
+      if (!nvPicPr) continue;
+
+      const cNvPr = nvPicPr.getElementsByTagNameNS('*', 'cNvPr')[0];
+      if (!cNvPr) continue;
+
+      // 检查属性
+      const descr = cNvPr.getAttribute('descr') || '';
+      const name = cNvPr.getAttribute('name') || '';
+      const hlinkClick = cNvPr.getElementsByTagNameNS('*', 'hlinkClick')[0];
+
+      // 检查是否是 Gamma 水印
+      const isGammaWatermark =
+        hlinkClick ||
+        descr.includes('preencoded.png') ||
+        name.toLowerCase().includes('gamma') ||
+        descr.toLowerCase().includes('gamma');
+
+      if (isGammaWatermark) {
+        // 移除这个 pic 元素
+        pic.parentNode.removeChild(pic);
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      return serializer.serializeToString(doc);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('解析布局 XML 失败:', error);
+    return null;
+  }
+}
+
+/**
+ * 从关系文件中移除 Gamma 超链接
+ * 参考自 gamma_no_watermark.js 的 removeGammaFromRels 函数
+ */
+function removeGammaFromRels(xmlContent) {
+  const parser = new DOMParser();
+  const serializer = new XMLSerializer();
+
+  try {
+    const doc = parser.parseFromString(xmlContent, 'text/xml');
+
+    // 查找所有 Relationship 元素
+    const relationships = doc.getElementsByTagName('Relationship');
+    let modified = false;
+
+    for (let i = relationships.length - 1; i >= 0; i--) {
+      const rel = relationships[i];
+      const target = rel.getAttribute('Target') || '';
+
+      // 移除指向 gamma.app 的关系
+      if (target.includes('gamma.app')) {
+        rel.parentNode.removeChild(rel);
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      return serializer.serializeToString(doc);
+    }
+
+    return null;
+  } catch (error) {
+    console.error('解析关系 XML 失败:', error);
+    return null;
+  }
+}
+
+/**
+ * 处理 Gamma PPT 文件并移除水印
+ */
+async function processGammaPptx() {
+  if (!state.gammaFile) {
+    alert('请先上传 Gamma PPT 文件');
+    return;
+  }
+
+  showProgress(true, '正在处理 Gamma PPT...');
+  addGammaLog('开始处理...', 'info');
+
+  try {
+    const zip = new JSZip();
+    const originalZip = await zip.loadAsync(state.gammaFile);
+
+    // 复制所有文件
+    addGammaLog('复制原始文件...');
+    for (const filename in originalZip.files) {
+      const file = originalZip.files[filename];
+      if (!file.dir) {
+        const content = await file.async('arraybuffer');
+        zip.file(filename, content);
+      }
+    }
+
+    let layoutCount = 0;
+    let relsCount = 0;
+
+    // 处理幻灯片布局文件
+    addGammaLog('处理幻灯片布局文件...', 'info');
+    const layoutFiles = Object.keys(originalZip.files).filter(name =>
+      name.startsWith('ppt/slideLayouts/slideLayout') && name.endsWith('.xml')
+    );
+
+    if (layoutFiles.length > 0) {
+      addGammaLog(`找到 ${layoutFiles.length} 个布局文件`);
+
+      for (const filePath of layoutFiles) {
+        const content = await originalZip.files[filePath].async('string');
+        const newContent = removeGammaFromLayout(content);
+
+        if (newContent) {
+          zip.file(filePath, newContent);
+          layoutCount++;
+          addGammaLog(`✓ 已移除水印: ${filePath.split('/').pop()}`, 'success');
+        }
+      }
+    } else {
+      addGammaLog('未找到布局文件（可能不是 Gamma PPT）', 'error');
+    }
+
+    // 处理关系文件
+    addGammaLog('处理关系文件...', 'info');
+    const relsFiles = Object.keys(originalZip.files).filter(name =>
+      name.startsWith('ppt/slideLayouts/_rels/') && name.endsWith('.xml.rels')
+    );
+
+    if (relsFiles.length > 0) {
+      addGammaLog(`找到 ${relsFiles.length} 个关系文件`);
+
+      for (const filePath of relsFiles) {
+        const content = await originalZip.files[filePath].async('string');
+        const newContent = removeGammaFromRels(content);
+
+        if (newContent) {
+          zip.file(filePath, newContent);
+          relsCount++;
+          addGammaLog(`✓ 已移除 Gamma 链接: ${filePath.split('/').pop()}`, 'success');
+        }
+      }
+    }
+
+    updateProgress(80);
+
+    if (layoutCount === 0 && relsCount === 0) {
+      addGammaLog('未检测到 Gamma 水印，文件可能已被处理或不是 Gamma PPT', 'error');
+      showProgress(false);
+      return;
+    }
+
+    addGammaLog(`修改了 ${layoutCount} 个布局文件和 ${relsCount} 个关系文件`, 'success');
+
+    // 生成并下载处理后的文件
+    updateProgress(90);
+    addGammaLog('正在重新打包 PPT 文件...');
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const fileName = state.gammaFile.name.replace('.pptx', '') + '-no-watermark.pptx';
+    saveAs(blob, fileName);
+
+    updateProgress(100);
+    addGammaLog(`✓ 处理完成！已保存为: ${fileName}`, 'success');
+
+    // 计算文件大小变化
+    const originalSize = state.gammaFile.size;
+    const newSize = blob.size;
+    const sizeDiff = ((newSize - originalSize) / originalSize * 100).toFixed(1);
+    addGammaLog(`原始大小: ${(originalSize / 1024 / 1024).toFixed(2)} MB`, 'info');
+    addGammaLog(`新文件大小: ${(newSize / 1024 / 1024).toFixed(2)} MB (${sizeDiff}% 变化)`, 'info');
+
+    setTimeout(() => showProgress(false), 1000);
+  } catch (error) {
+    addGammaLog('处理失败：' + error.message, 'error');
+    alert('处理失败：' + error.message);
+    showProgress(false);
+  }
+}
+
+document.getElementById('gamma-process').addEventListener('click', processGammaPptx);
+
+document.getElementById('gamma-reset').addEventListener('click', () => {
+  gammaPreview.style.display = 'none';
+  gammaUpload.style.display = 'block';
+  state.gammaFile = null;
+  state.gammaLog = [];
+  document.getElementById('gamma-log-content').innerHTML = '';
+});
+
+console.log('水印去除工具已加载（包含 Gamma PPT 专用去水印功能）');

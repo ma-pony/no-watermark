@@ -17,6 +17,7 @@
       <button class="tab-btn active" data-tab="image">图片水印</button>
       <button class="tab-btn" data-tab="video">视频水印</button>
       <button class="tab-btn" data-tab="ppt">PPT水印</button>
+      <button class="tab-btn" data-tab="gamma">Gamma PPT</button>
     </div>
 
     <!-- 图片水印去除 -->
@@ -129,6 +130,43 @@
         <div class="controls">
           <button class="btn btn-secondary" id="ppt-reset">重置</button>
           <button class="btn btn-primary" id="ppt-process">处理并下载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gamma PPT 水印去除 -->
+    <div class="tab-content" id="gamma-tab">
+      <div class="upload-area" id="gamma-upload">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <p>拖拽 Gamma PPT 文件到此处或点击上传</p>
+        <p class="gamma-note">专门去除 "Made with Gamma" 水印</p>
+        <input type="file" id="gamma-input" accept=".pptx" hidden>
+      </div>
+
+      <div class="options-panel">
+        <h3>Gamma 水印去除选项</h3>
+        <p class="note">此工具将：</p>
+        <ul class="gamma-features">
+          <li>删除幻灯片布局中的水印图片元素</li>
+          <li>删除指向 gamma.app 的超链接关系</li>
+          <li>保留所有原始内容和格式</li>
+        </ul>
+      </div>
+
+      <div class="gamma-preview-area" id="gamma-preview" style="display: none;">
+        <div class="gamma-info" id="gamma-info"></div>
+        <div class="gamma-log" id="gamma-log">
+          <h4>处理日志</h4>
+          <div id="gamma-log-content"></div>
+        </div>
+        <div class="controls">
+          <button class="btn btn-secondary" id="gamma-reset">重置</button>
+          <button class="btn btn-primary" id="gamma-process">一键去除水印</button>
         </div>
       </div>
     </div>

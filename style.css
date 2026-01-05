@@ -331,6 +331,90 @@ header h1 {
   color: var(--text-light);
 }
 
+/* Gamma PPT Styles */
+.gamma-note {
+  margin-top: 0.5rem;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.gamma-features {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.gamma-features li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: var(--text);
+}
+
+.gamma-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: bold;
+}
+
+.gamma-preview-area {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.gamma-info {
+  padding: 1rem;
+  background: var(--bg);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.gamma-info p {
+  margin: 0.5rem 0;
+}
+
+.gamma-log {
+  margin-top: 1rem;
+}
+
+.gamma-log h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+#gamma-log-content {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.85rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#gamma-log-content p {
+  margin: 0.25rem 0;
+  color: var(--text-light);
+}
+
+#gamma-log-content .success {
+  color: var(--success);
+}
+
+#gamma-log-content .error {
+  color: var(--danger);
+}
+
+#gamma-log-content .info {
+  color: var(--primary);
+}
+
 /* Footer */
 footer {
   text-align: center;
