@@ -1,6 +1,6 @@
 # 水印去除工具
 
-纯前端在线水印去除工具，支持图片、视频、PPT文件的水印处理。
+纯前端在线水印去除工具，支持图片、视频、PPT和Gamma App水印处理。
 
 ## 功能特性
 
@@ -18,6 +18,12 @@
   - 删除文字水印
   - 删除图片水印
   - 删除背景水印
+
+- **Gamma PPT 专用去水印**
+  - 自动删除 "Made with Gamma" 水印
+  - 删除幻灯片布局中的水印图片
+  - 删除指向 gamma.app 的超链接
+  - 保留所有原始内容和格式
 
 ## 快速开始
 
@@ -45,11 +51,16 @@ npm run preview
 
 ```
 no-watermark/
-├── index.html      # 主页面
-├── style.css       # 样式文件
-├── main.js         # 主逻辑
-├── package.json    # 项目配置
-└── README.md       # 说明文档
+├── index.html              # 主页面
+├── style.css               # 样式文件
+├── main.js                 # 主逻辑
+├── package.json            # 项目配置
+├── vite.config.js          # Vite 配置
+├── public/                 # 静态资源
+│   ├── robots.txt          # 爬虫规则
+│   ├── sitemap.xml         # 站点地图
+│   └── site.webmanifest    # PWA 清单
+└── README.md               # 说明文档
 ```
 
 ## 使用说明
@@ -75,6 +86,37 @@ no-watermark/
 2. 上传 .pptx 文件
 3. 选择要去除的水印类型
 4. 点击"处理并下载"
+
+### Gamma PPT 水印去除
+
+1. 切换到"Gamma PPT"标签
+2. 上传从 Gamma 导出的 .pptx 文件
+3. 点击"一键去除水印"
+4. 等待处理完成并自动下载
+
+## SEO 优化
+
+项目已包含完整的 SEO 优化：
+
+- **Meta 标签**: 完整的 title、description、keywords
+- **Open Graph**: Facebook/LinkedIn 分享优化
+- **Twitter Cards**: Twitter 分享优化
+- **结构化数据**: Schema.org JSON-LD 标记
+- **语义化 HTML**: 使用正确的 HTML5 语义标签
+- **FAQ 区域**: 常见问题有助于搜索排名
+- **robots.txt**: 搜索引擎爬虫规则
+- **sitemap.xml**: 站点地图便于索引
+- **PWA 支持**: Web App Manifest
+
+### 部署前 SEO 检查清单
+
+- [ ] 更新 `canonical` URL 为实际域名
+- [ ] 更新 Open Graph 和 Twitter Card 图片链接
+- [ ] 更新 sitemap.xml 中的 `lastmod` 日期
+- [ ] 创建并添加 favicon 图标文件
+- [ ] 根据需要调整 robots.txt
+- [ ] 验证结构化数据：https://validator.schema.org/
+- [ ] 测试社交分享：https://www.opengraph.xyz/
 
 ## 隐私说明
 
