@@ -1,7 +1,7 @@
 {
-  "name": "水印去除工具 - 在线去除图片/视频/PPT/Gamma水印",
-  "short_name": "水印去除工具",
-  "description": "免费在线水印去除工具，支持图片、视频、PPT和Gamma App水印去除。纯前端本地处理，无需上传服务器。",
+  "name": "Gamma PPT 去水印工具 - 一键移除 Made with Gamma 水印",
+  "short_name": "Gamma PPT 去水印",
+  "description": "免费在线 Gamma PPT 去水印工具，一键自动移除 PPT 文件中的 "Made with Gamma" 水印。纯前端本地处理，无需上传服务器。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
