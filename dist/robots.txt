@@ -1,0 +1,13 @@
+# robots.txt for No Watermark Tool
+
+User-agent: *
+Allow: /
+
+# Disallow specific paths if any
+# Disallow: /private/
+
+# Sitemap location
+Sitemap: https://yourwebsite.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
