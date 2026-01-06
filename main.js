@@ -4,7 +4,7 @@ import { PDFDocument } from 'pdf-lib';
 
 // ==================== 全局状态 ====================
 const state = {
-  currentTab: 'image',
+  currentTab: 'gamma',
   imageFile: null,
   imageOriginalData: null,
   videoFile: null,

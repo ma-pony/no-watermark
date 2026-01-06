@@ -82,6 +82,14 @@ header h1 {
   color: white;
 }
 
+.tab-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: var(--text-light);
+}
+
+/* Tab Content */
+
 /* Tab Content */
 .tab-content {
   display: none;
@@ -89,6 +97,48 @@ header h1 {
 
 .tab-content.active {
   display: block;
+}
+
+/* Coming Soon */
+.coming-soon {
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.coming-soon svg {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.coming-soon h2 {
+  color: var(--text);
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+}
+
+.coming-soon p {
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
+
+.coming-soon .note {
+  color: var(--primary);
+  font-weight: 500;
+  margin-top: 1rem;
 }
 
 /* Upload Area */
