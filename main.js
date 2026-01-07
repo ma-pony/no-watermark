@@ -319,21 +319,23 @@ const videoPreview = document.getElementById('video-preview');
 const videoPlayer = document.getElementById('video-player');
 const selectionBox = document.getElementById('selection-box');
 
-videoUpload.addEventListener('click', () => videoInput.click());
-videoUpload.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  videoUpload.classList.add('dragover');
-});
-videoUpload.addEventListener('dragleave', () => videoUpload.classList.remove('dragover'));
-videoUpload.addEventListener('drop', (e) => {
-  e.preventDefault();
-  videoUpload.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) handleVideoUpload(files[0]);
-});
-videoInput.addEventListener('change', (e) => {
-  if (e.target.files.length > 0) handleVideoUpload(e.target.files[0]);
-});
+if (videoUpload && videoInput) {
+  videoUpload.addEventListener('click', () => videoInput.click());
+  videoUpload.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    videoUpload.classList.add('dragover');
+  });
+  videoUpload.addEventListener('dragleave', () => videoUpload.classList.remove('dragover'));
+  videoUpload.addEventListener('drop', (e) => {
+    e.preventDefault();
+    videoUpload.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleVideoUpload(files[0]);
+  });
+  videoInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleVideoUpload(e.target.files[0]);
+  });
+}
 
 function handleVideoUpload(file) {
   if (!file.type.startsWith('video/')) {
@@ -352,6 +354,8 @@ function handleVideoUpload(file) {
 }
 
 function setupVideoSelection() {
+  if (!selectionBox) return;
+
   let isDragging = false;
   let startX, startY;
 
@@ -385,39 +389,47 @@ function setupVideoSelection() {
   });
 }
 
-document.getElementById('video-process').addEventListener('click', async () => {
-  alert('视频处理需要较大的计算资源。\n\n提示：由于纯前端视频处理限制，建议使用专业视频编辑软件或后端服务处理大型视频文件。\n\n对于短视频（<10秒），可以尝试下载后使用 FFmpeg 等工具处理。');
-});
+const videoProcessBtn = document.getElementById('video-process');
+if (videoProcessBtn) {
+  videoProcessBtn.addEventListener('click', async () => {
+    alert('视频处理需要较大的计算资源。\n\n提示：由于纯前端视频处理限制，建议使用专业视频编辑软件或后端服务处理大型视频文件。\n\n对于短视频（<10秒），可以尝试下载后使用 FFmpeg 等工具处理。');
+  });
+}
 
-document.getElementById('video-reset').addEventListener('click', () => {
-  if (state.videoFile) {
-    const url = URL.createObjectURL(state.videoFile);
-    videoPlayer.src = url;
-    selectionBox.style.left = '0px';
-    selectionBox.style.top = '0px';
-  }
-});
+const videoResetBtn = document.getElementById('video-reset');
+if (videoResetBtn) {
+  videoResetBtn.addEventListener('click', () => {
+    if (state.videoFile) {
+      const url = URL.createObjectURL(state.videoFile);
+      videoPlayer.src = url;
+      selectionBox.style.left = '0px';
+      selectionBox.style.top = '0px';
+    }
+  });
+}
 
 // ==================== PPT水印处理 ====================
 const pptUpload = document.getElementById('ppt-upload');
 const pptInput = document.getElementById('ppt-input');
 const pptPreview = document.getElementById('ppt-preview');
 
-pptUpload.addEventListener('click', () => pptInput.click());
-pptUpload.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  pptUpload.classList.add('dragover');
-});
-pptUpload.addEventListener('dragleave', () => pptUpload.classList.remove('dragover'));
-pptUpload.addEventListener('drop', (e) => {
-  e.preventDefault();
-  pptUpload.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) handlePptUpload(files[0]);
-});
-pptInput.addEventListener('change', (e) => {
-  if (e.target.files.length > 0) handlePptUpload(e.target.files[0]);
-});
+if (pptUpload && pptInput) {
+  pptUpload.addEventListener('click', () => pptInput.click());
+  pptUpload.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    pptUpload.classList.add('dragover');
+  });
+  pptUpload.addEventListener('dragleave', () => pptUpload.classList.remove('dragover'));
+  pptUpload.addEventListener('drop', (e) => {
+    e.preventDefault();
+    pptUpload.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handlePptUpload(files[0]);
+  });
+  pptInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handlePptUpload(e.target.files[0]);
+  });
+}
 
 async function handlePptUpload(file) {
   const fileName = file.name.toLowerCase();
@@ -471,7 +483,9 @@ function displaySlides(count) {
   }
 }
 
-document.getElementById('ppt-process').addEventListener('click', async () => {
+const pptProcessBtn = document.getElementById('ppt-process');
+if (pptProcessBtn) {
+  pptProcessBtn.addEventListener('click', async () => {
   showProgress(true, '正在处理 PPT...');
 
   try {
@@ -539,15 +553,18 @@ document.getElementById('ppt-process').addEventListener('click', async () => {
     showProgress(false);
   }
 });
+}
 
-document.getElementById('ppt-reset').addEventListener('click', () => {
-  pptPreview.style.display = 'none';
-  pptUpload.style.display = 'block';
-  state.pptFile = null;
-  state.pptSlides = [];
-  document.getElementById('slides-list').innerHTML = '';
-});
-
+const pptResetBtn = document.getElementById('ppt-reset');
+if (pptResetBtn) {
+  pptResetBtn.addEventListener('click', () => {
+    pptPreview.style.display = 'none';
+    pptUpload.style.display = 'block';
+    state.pptFile = null;
+    state.pptSlides = [];
+    document.getElementById('slides-list').innerHTML = '';
+  });
+}
 // ==================== Gamma PPT 水印处理 ====================
 const gammaUpload = document.getElementById('gamma-upload');
 const gammaInput = document.getElementById('gamma-input');
@@ -843,21 +860,23 @@ const pdfUpload = document.getElementById('pdf-upload');
 const pdfInput = document.getElementById('pdf-input');
 const pdfPreview = document.getElementById('pdf-preview');
 
-pdfUpload.addEventListener('click', () => pdfInput.click());
-pdfUpload.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  pdfUpload.classList.add('dragover');
-});
-pdfUpload.addEventListener('dragleave', () => pdfUpload.classList.remove('dragover'));
-pdfUpload.addEventListener('drop', (e) => {
-  e.preventDefault();
-  pdfUpload.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) handlePdfUpload(files[0]);
-});
-pdfInput.addEventListener('change', (e) => {
-  if (e.target.files.length > 0) handlePdfUpload(e.target.files[0]);
-});
+if (pdfUpload && pdfInput) {
+  pdfUpload.addEventListener('click', () => pdfInput.click());
+  pdfUpload.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    pdfUpload.classList.add('dragover');
+  });
+  pdfUpload.addEventListener('dragleave', () => pdfUpload.classList.remove('dragover'));
+  pdfUpload.addEventListener('drop', (e) => {
+    e.preventDefault();
+    pdfUpload.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handlePdfUpload(files[0]);
+  });
+  pdfInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handlePdfUpload(e.target.files[0]);
+  });
+}
 
 async function handlePdfUpload(file) {
   if (!file.name.toLowerCase().endsWith('.pdf')) {
@@ -910,7 +929,9 @@ function displayPdfPages(count) {
   }
 }
 
-document.getElementById('pdf-process').addEventListener('click', async () => {
+const pdfProcessBtn = document.getElementById('pdf-process');
+if (pdfProcessBtn) {
+  pdfProcessBtn.addEventListener('click', async () => {
   if (!state.pdfDoc) {
     alert('请先上传 PDF 文件');
     return;
@@ -955,14 +976,18 @@ document.getElementById('pdf-process').addEventListener('click', async () => {
     showProgress(false);
   }
 });
+}
 
-document.getElementById('pdf-reset').addEventListener('click', () => {
-  pdfPreview.style.display = 'none';
-  pdfUpload.style.display = 'block';
-  state.pdfFile = null;
-  state.pdfDoc = null;
-  state.pdfPages = [];
-  document.getElementById('pdf-pages-list').innerHTML = '';
-});
+const pdfResetBtn = document.getElementById('pdf-reset');
+if (pdfResetBtn) {
+  pdfResetBtn.addEventListener('click', () => {
+    pdfPreview.style.display = 'none';
+    pdfUpload.style.display = 'block';
+    state.pdfFile = null;
+    state.pdfDoc = null;
+    state.pdfPages = [];
+    document.getElementById('pdf-pages-list').innerHTML = '';
+  });
+}
 
 console.log('水印去除工具已加载（包含 Gamma PPT 和 PDF 去水印功能）');
